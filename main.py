@@ -1,4 +1,5 @@
 from sympy import *
+from itertools import combinations
 
 DEBUG_OUTPUT = True
 
@@ -47,10 +48,14 @@ def make_system(equation):
     lst.append(linearize(equation, [('L', 1), ('M', E), ('T', 1)]))
     lst.append(linearize(equation, [('L', E), ('M', 1), ('T', 1)]))
     return lst
-   
+    
 def extract_vars(equation):
     """Separates free variables"""
-    yield (symbols(equation[2][:5]) , symbols(equation[2][5:]))
+    all_vars = equation[2].split()
+    
+    for subset in combinations(all_vars, 3):
+        yield (symbols(list(set(all_vars) - set(subset))),
+               symbols(list(subset)))
     
 def optimagick(equation, solution, variables):
     """Does the main optimagick thing using good old logarithms
@@ -71,14 +76,22 @@ def optimagick(equation, solution, variables):
 def solve_task(task):
     """Solves a single task, TBD: make latex"""
     equation = get_equation(task)
+    debug_output("Equation after substitutions:")
     debug_output(equation[1])
     
     system = make_system(equation)
+    debug_output("Linear system:")
     debug_output(system)
     
     for variables in extract_vars(equation):
+        print("Trying to solve for these vars:" + str(variables))
+        
         solution = linsolve(system, variables[0])
         debug_output(solution)
+        
+        if solution == EmptySet():
+            debug_output("No solutions for these vars!")
+            continue
         
         for eq in optimagick(equation, solution, variables):
             print(eq)
