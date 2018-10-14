@@ -66,12 +66,11 @@ def optimagick(equation, solution, variables):
 
     substitutions = [(variables[0][i], sol[i]) for i in range(0, len(sol))]
     tmp = expand_log(ln(equation[4].subs(substitutions)), force = True)
-    
     substitutions = [(variables[1][i], 0) for i in range(0, len(sol))]
-    yield (equation[3], exp(tmp.subs(substitutions)))
+    yield (1, exp(tmp.subs(substitutions)))
     
     for var in variables[1]:
-        yield (equation[3], exp(diff(tmp, var)))
+        yield (1, exp(diff(tmp, var)))
 
 def solve_task(task):
     """Solves a single task, TBD: make latex"""
